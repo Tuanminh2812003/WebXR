@@ -8,23 +8,23 @@ export function GrabHandler() {
   const grabbed = useRef<{ object: THREE.Object3D; parent: THREE.Object3D | null } | null>(null);
 
   useFrame(() => {
-    const controller = controllers?.[0];
-    if (!controller?.gripSpace || !controller?.inputSource?.gamepad) return;
+    const controller = controllers.find((c: any) => c.inputSource?.handedness === "right");
+    if (!controller?.grip || !controller.inputSource?.gamepad) return;
 
-    const grip = controller.gripSpace;
+    const grip = controller.grip;
     const isPressed = controller.inputSource.gamepad.buttons?.[0]?.pressed;
 
     if (grabbed.current) {
       if (!isPressed) {
-        // Thả ra
-        grabbed.current.parent?.add(grabbed.current.object);
+        // Thả object về parent cũ
+        grabbed.current.parent?.attach(grabbed.current.object);
         grabbed.current = null;
       }
       return;
     }
 
     if (isPressed) {
-      grip.parent?.parent?.traverse((child: THREE.Object3D) => {
+      grip.parent?.traverse((child: THREE.Object3D) => {
         if (
           child.userData?.grabbable &&
           !grabbed.current &&
@@ -37,7 +37,7 @@ export function GrabHandler() {
               object: child,
               parent: child.parent,
             };
-            grip.add(child);
+            grip.attach(child);
           }
         }
       });

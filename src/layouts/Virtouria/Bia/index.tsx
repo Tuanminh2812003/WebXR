@@ -19,7 +19,7 @@ export default function HomeXR() {
       {
         path: "/Virtouria/Bia/Hops crate.glb",
         position: [0, 0, 0],
-        rotation: [0, 180, 0],
+        rotation: [0, 0, 0],
         scale: [1, 1, 1],
         clickable: false,
         info: "Tác phẩm Lễ hội Khmer ở Cà Mau - Giải xuất sắc",

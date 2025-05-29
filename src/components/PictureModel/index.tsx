@@ -11,29 +11,26 @@ interface PictureModelProps {
   onClick?: (data: { position: THREE.Vector3; lookAt: THREE.Vector3 }) => void;
   onLoad?: () => void;
   clickable?: boolean;
-  grabbable?: boolean;
 }
 
-export default function PictureModel({ path, position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], clickable = true, grabbable = false, onClick, onLoad }: PictureModelProps) {
+export default function PictureModel({ path, position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1], clickable = true, onClick, onLoad }: PictureModelProps) {
   const gltf = useLoader(GLTFLoader, path);
   const model = useMemo(() => gltf.scene.clone(true), [gltf]);
   const ref = useRef<THREE.Group>(null);
 
   useEffect(() => {
-  model.traverse((child: any) => {
-    if (child.isMesh) {
-      child.castShadow = true;
-      child.receiveShadow = true;
-    }
-  });
+    model.traverse((child: any) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        if (clickable) {
+          child.userData.clickable = true;
+        }
+      }
+    });
 
-  if (clickable || grabbable) {
-    model.userData.clickable = clickable;
-    model.userData.grabbable = grabbable;
-  }
-
-  if (onLoad) onLoad();
-}, [model]);
+    if (onLoad) onLoad();
+  }, [model]);
 
   const handleClick = () => {
     if (!onClick || !ref.current) return;
@@ -58,7 +55,6 @@ export default function PictureModel({ path, position = [0, 0, 0], rotation = [0
       rotation={rotation.map(r => r * (Math.PI / 180)) as [number, number, number]}
       scale={scale}
       onClick={clickable ? handleClick : undefined}
-      userData={{ grabbable }} 
     >
       <primitive object={model} />
     </group>
