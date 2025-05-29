@@ -20,21 +20,20 @@ export default function PictureModel({ path, position = [0, 0, 0], rotation = [0
   const ref = useRef<THREE.Group>(null);
 
   useEffect(() => {
-    model.traverse((child: any) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        if (clickable) {
-          child.userData.clickable = true;
-        }
-        if (grabbable) {
-          child.userData.grabbable = true; // ✅ thêm dòng này
-        }
-      }
-    });
+  model.traverse((child: any) => {
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+    }
+  });
 
-    if (onLoad) onLoad();
-  }, [model]);
+  if (clickable || grabbable) {
+    model.userData.clickable = clickable;
+    model.userData.grabbable = grabbable;
+  }
+
+  if (onLoad) onLoad();
+}, [model]);
 
   const handleClick = () => {
     if (!onClick || !ref.current) return;
