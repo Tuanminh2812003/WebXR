@@ -58,6 +58,7 @@ export default function PictureModel({ path, position = [0, 0, 0], rotation = [0
       rotation={rotation.map(r => r * (Math.PI / 180)) as [number, number, number]}
       scale={scale}
       onClick={clickable ? handleClick : undefined}
+      userData={{ grabbable }} 
     >
       <primitive object={model} />
     </group>
