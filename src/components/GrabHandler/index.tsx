@@ -5,38 +5,39 @@ import * as THREE from "three";
 
 export function GrabHandler() {
   const controllers = (useXR() as any).controllers;
-  const grabbed = useRef<{ object: THREE.Object3D, parent: THREE.Object3D | null } | null>(null);
+  const grabbed = useRef<{ object: THREE.Object3D; parent: THREE.Object3D | null } | null>(null);
 
   useFrame(() => {
     const controller = controllers?.[0];
-    if (!controller?.gripSpace || !controller.inputSource?.gamepad) return;
+    if (!controller?.gripSpace || !controller?.inputSource?.gamepad) return;
 
     const grip = controller.gripSpace;
-    const buttonPressed = controller.inputSource.gamepad.buttons?.[0]?.pressed;
+    const isPressed = controller.inputSource.gamepad.buttons?.[0]?.pressed;
 
     if (grabbed.current) {
-      // Nếu đang buông
-      if (!buttonPressed) {
-        const { object, parent } = grabbed.current;
-        parent?.add(object); // Trả lại object về parent gốc
+      if (!isPressed) {
+        // Thả ra
+        grabbed.current.parent?.add(grabbed.current.object);
         grabbed.current = null;
       }
       return;
     }
 
-    // Nếu đang nhấn → thử cầm object
-    if (buttonPressed) {
-      // Lấy tất cả con trong scene để tìm object gần
+    if (isPressed) {
       grip.parent?.parent?.traverse((child: THREE.Object3D) => {
-        if (child.userData?.grabbable && child instanceof THREE.Object3D && !grabbed.current) {
+        if (
+          child.userData?.grabbable &&
+          !grabbed.current &&
+          child !== grip &&
+          child !== grip.parent
+        ) {
           const distance = grip.position.distanceTo(child.position);
           if (distance < 0.3) {
-            // Lưu parent để thả sau
             grabbed.current = {
               object: child,
               parent: child.parent,
             };
-            grip.add(child); // Gắn object vào tay
+            grip.add(child);
           }
         }
       });
